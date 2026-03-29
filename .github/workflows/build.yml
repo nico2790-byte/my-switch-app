@@ -9,11 +9,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Switch Libraries
+        run: |
+          # This installs the actual Switch ingredients
+          dkp-pacman -Syu --noconfirm switch-dev
+
       - name: Build App
         run: |
-          # Use the built-in devkitPro toolchain
+          export DEVKITPRO=/opt/devkitpro
+          export PATH=$PATH:$DEVKITPRO/devkitA64/bin
           make
-
+          
       - name: Upload NRO
         uses: actions/upload-artifact@v4
         with:
