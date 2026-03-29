@@ -1,20 +1,24 @@
-# Root directory of devkitPro
+# Paths
 DEVKITPRO := /opt/devkitpro
-include $(DEVKITPRO)/libnx/switch_rules
+LIBNX     := $(DEVKITPRO)/libnx
+CC        := $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-gcc
+ELF2NRO   := $(DEVKITPRO)/tools/bin/elf2nro
 
-TARGET := MySwitchApp
-SOURCES := source
+# Application Settings
+TARGET    := MySwitchApp
+SOURCES   := source/main.c
+
+# Compilation Flags
+CFLAGS    := -g -O2 -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -I$(LIBNX)/include
+LDFLAGS   := -specs=$(LIBNX)/switch.specs -L$(LIBNX)/lib -lnx
 
 all: $(TARGET).nro
 
 $(TARGET).nro: $(TARGET).elf
-	$(coord)$(ELF2NRO) $< $@
+	$(ELF2NRO) $< $@
 
-$(TARGET).elf: $(SOURCES)/main.c
-	$(coord)$(CC) -g -O2 -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE \
-	-I$(LIBNX)/include \
-	-L$(LIBNX)/lib \
-	-specs=$(LIBNX)/switch.specs $< -lnx -o $@
+$(TARGET).elf: $(SOURCES)
+	$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
 
 clean:
 	rm -f $(TARGET).elf $(TARGET).nro
